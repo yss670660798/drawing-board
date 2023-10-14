@@ -1,0 +1,29 @@
+.header {
+	position: fixed;
+	top: 10px;
+	border-radius: 10px;
+	background-color: #fff;
+	padding: 4px 8px;
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 10;
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+	.headerItem {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+		border-radius: 6px;
+		width: 32px;
+		height: 32px;
+		.icon {
+			font-size: 20px;
+		}
+		& + .headerItem {
+			margin-left: 8px;
+		}
+		&:hover {
+			background: rgb(242, 244, 248);
+		}
+	}
+}

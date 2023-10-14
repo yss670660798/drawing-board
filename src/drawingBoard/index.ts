@@ -9,7 +9,7 @@ class DrawingBoard {
 	isDrawing: boolean = false; // 是否正在绘制
 	startPosition: { x: number; y: number } = { x: 0, y: 0 }; // 绘制起始点
 	event: Event; // 事件
-	lineWidth: number = 1; // 线宽
+	lineWidth: number = 5; // 线宽
 	constructor(canvas: HTMLCanvasElement) {
 		this.dpr = window.devicePixelRatio || 1;
 		this.canvas = canvas;
