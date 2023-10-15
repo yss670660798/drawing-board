@@ -9,9 +9,11 @@
 	border-radius: 10px;
 	padding: 10px 0;
 	background: #fff;
+
 	&.show {
 		left: 10px;
 	}
+
 	.title {
 		width: 100%;
 		padding: 0 20px 4px;
@@ -19,14 +21,17 @@
 		align-items: center;
 		justify-content: space-between;
 		border-bottom: 1px solid #eee;
+
 		.name {
 			font-size: 18px;
 		}
+
 		.close {
 			font-size: 16px;
 			cursor: pointer;
 		}
 	}
+
 	.panelContent {
 		max-height: calc(100vh - 170px);
 		overflow-y: auto;
