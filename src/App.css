@@ -26,4 +26,6 @@ ul {
 
 canvas {
   display: block;
+	image-rendering: optimizeQuality;
+	backface-visibility: hidden;
 }

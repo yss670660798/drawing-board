@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@arco-design/web-react": "^2.54.0",
     "classnames": "^2.3.2",
     "mobx": "^6.10.2",
     "mobx-react": "^9.0.1",
@@ -17,6 +18,7 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
+    "@arco-plugins/vite-react": "^1.3.3",
     "@types/node": "^20.8.5",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
