@@ -3,12 +3,13 @@ import s from './index.module.scss'
 import { useRef, useEffect } from 'react'
 import boardStore from '@/store/boardStore'
 import { observer } from 'mobx-react'
+import { useDebounceEffect } from 'ahooks'
 function Index() {
 	const canvasRef = useRef<HTMLCanvasElement>(null)
 	const wrapRef = useRef<HTMLDivElement>(null)
 	const { setBoard, board } = boardStore
 	// 初始化画板
-	useEffect(() => {
+	useDebounceEffect(() => {
 		if (!canvasRef.current) return
 		const board = new DrawingBoard(canvasRef.current)
 		setBoard(board)

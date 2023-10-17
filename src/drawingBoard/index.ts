@@ -1,28 +1,45 @@
 import Event from './event'
 import { Material, getCrayonPattern } from './utils'
 import crayonImgAsset from '../assets/crayon.png'
+import boardStore from '@/store/boardStore'
+import { getUuid } from '@/utils'
+export interface Point {
+	x: number
+	y: number
+}
+export interface DrawStyle {
+	lineWidth: number
+	brushType: string
+	strokeStyle: string
+}
 class DrawingBoard {
 	canvas: HTMLCanvasElement // 画布
+	drawCanvas: HTMLCanvasElement // 画布
 	ctx: CanvasRenderingContext2D // 画布上下文
+	drawCtx: CanvasRenderingContext2D // 画布上下文
 	dpr: number = 1
 	brushType: string = 'pencil' // 画笔类型 默认铅笔
 	isMouseDown: boolean = false // 鼠标是否按下
 	isDrawing: boolean = false // 是否正在绘制
-	startPosition: { x: number; y: number } = { x: 0, y: 0 } // 绘制起始点
+	startPosition: Point = { x: 0, y: 0 } // 绘制起始点
 	event: Event // 事件
-	lineWidth: number = 20 // 线宽
+	lineWidth: number = 5 // 线宽
 	strokeStyle: string = '#000' // 线条颜色
-	lastPosition: { x: number; y: number } = { x: 0, y: 0 } // 上一个点
+	lastPosition: Point = { x: 0, y: 0 } // 上一个点
 	material: Material = {
 		crayon: null,
 	}
+	points: Point[] = []
 	constructor(canvas: HTMLCanvasElement) {
 		this.dpr = window.devicePixelRatio || 1
 		this.canvas = canvas
+		this.ctx = <CanvasRenderingContext2D>canvas.getContext('2d')
+		const c = document.createElement('canvas')
+		this.drawCanvas = c
+		this.drawCtx = <CanvasRenderingContext2D>c.getContext('2d')
+		this.canvas.parentNode?.appendChild(this.drawCanvas)
 		this.event = new Event(this)
-		// @ts-ignore
-		this.ctx = canvas.getContext('2d')
-		this.ctx.imageSmoothingEnabled = true
+
 		this.init()
 		this.loadMaterial()
 	}
@@ -31,13 +48,35 @@ class DrawingBoard {
 		this.setCanvasSize()
 	}
 
+	addPoint(point: Point) {
+		this.points.push(point)
+	}
+
+	clearPoints() {
+		this.points = []
+	}
+
 	// 设置画布宽度
 	setCanvasSize(width?: number, height?: number) {
-		this.canvas.width = width || document.body.clientWidth
-		this.canvas.height = height || document.body.clientHeight
+		const w = width || document.body.clientWidth
+		const h = height || document.body.clientHeight
+		this.canvas.width = w
+		this.canvas.height = h
+		this.drawCanvas.width = w
+		this.drawCanvas.height = h
+		this.drawCanvas.style.position = 'absolute'
+		this.drawCanvas.style.top = '0'
+		this.drawCanvas.style.left = '0'
+		this.drawCanvas.style.zIndex = '-1'
 		// this.ctx.scale(this.dpr, this.dpr)
 	}
 
+	setDrawCanvasStyle(style: Partial<CSSStyleDeclaration>) {
+		for (const key in style) {
+			// @ts-ignore
+			this.drawCanvas.style[key] = style[key]
+		}
+	}
 	// 设置画笔类型
 	setBrushType(type: string) {
 		this.brushType = type
@@ -46,7 +85,6 @@ class DrawingBoard {
 	setStartPosition(x: number, y: number) {
 		this.startPosition = { x, y }
 	}
-
 	// 设置鼠标是否按下
 	setIsMouseDown(isMouseDown: boolean) {
 		this.isMouseDown = isMouseDown
@@ -63,13 +101,29 @@ class DrawingBoard {
 	setStrokeStyle(strokeStyle: string) {
 		this.strokeStyle = strokeStyle
 	}
+	drawContent() {
+		this.setIsDrawing(true)
+		this.clearDrawCanvas()
+		this.draw(this.drawCtx, {
+			points: this.points,
+			style: {
+				lineWidth: this.lineWidth,
+				brushType: this.brushType,
+				strokeStyle: this.strokeStyle,
+			},
+		})
+	}
 	// 绘制
-	draw(x: number, y: number) {
-		this.ctx.save()
-		this.ctx.lineCap = 'round'
-		this.ctx.lineJoin = 'round'
-		this.ctx.lineWidth = this.lineWidth
-		switch (this.brushType) {
+	draw(
+		ctx: CanvasRenderingContext2D,
+		{ points, style }: { points: Point[]; style: DrawStyle },
+	) {
+		const { lineWidth, brushType, strokeStyle } = style
+		ctx.save()
+		ctx.lineCap = 'round'
+		ctx.lineJoin = 'round'
+		ctx.lineWidth = lineWidth
+		switch (brushType) {
 			// case "pencil":
 			// 	this.drawPencil(x, y);
 			// 	break;
@@ -77,41 +131,75 @@ class DrawingBoard {
 			// 	this.drawEraser(x, y);
 			// 	break;
 			case 'crayon':
-				this.ctx.strokeStyle = getCrayonPattern(
-					this.strokeStyle,
-					this.material.crayon,
-				)
+				ctx.strokeStyle = getCrayonPattern(strokeStyle, this.material.crayon)
 				break
 			case 'shadow':
-				this.ctx.shadowColor = this.strokeStyle
-				this.ctx.strokeStyle = this.strokeStyle
+				ctx.shadowColor = strokeStyle
+				ctx.strokeStyle = strokeStyle
 				break
 			default:
-				this.ctx.strokeStyle = this.strokeStyle
+				ctx.strokeStyle = strokeStyle
 				break
 		}
 
-		if (this.isDrawing === false) {
-			this.setIsDrawing(true)
-			this.ctx.beginPath()
+		ctx.beginPath()
+		const firstPoint = points[0]
+		ctx.moveTo(firstPoint.x, firstPoint.y)
+		for (let i = 1; i < points.length; i++) {
+			ctx.quadraticCurveTo(
+				(points[i - 1].x + points[i].x) / 2,
+				(points[i - 1].y + points[i].y) / 2,
+				points[i].x,
+				points[i].y,
+			)
 		}
-		this.ctx.moveTo(x, y)
-		// if(this.lastPosition.x===0 && this.lastPosition.y===0){
-		this.ctx.lineTo(x, y)
 
-		// }else{
-		// this.ctx.quadraticCurveTo(x, y)
-		// }
-
-		this.ctx.stroke()
+		ctx.stroke()
 		if (this.brushType === 'shadow') {
-			this.ctx.shadowBlur = this.lineWidth
+			ctx.shadowBlur = lineWidth
 		}
 	}
 
 	// 清空画板
 	clear() {
+		const { pushData, clearData } = boardStore
 		this.ctx?.clearRect(0, 0, this.canvas.width, this.canvas.height)
+	}
+	clearDrawCanvas() {
+		this.drawCtx?.clearRect(0, 0, this.canvas.width, this.canvas.height)
+	}
+	// 添加历史记录
+	addHistory() {
+		const { pushData } = boardStore
+		pushData({
+			id: getUuid(),
+			points: this.points,
+			style: {
+				lineWidth: this.lineWidth,
+				brushType: this.brushType,
+				strokeStyle: this.strokeStyle,
+			},
+		})
+	}
+	// 绘制历史数据
+	drawHistory() {
+		this.clear()
+		const { drawData } = boardStore
+		drawData.forEach(({ points, style }) => {
+			this.draw(this.ctx, { points, style })
+		})
+	}
+
+	// 撤销
+	revoke() {
+		const { revoke } = boardStore
+		revoke()
+		this.drawHistory()
+	}
+	restore() {
+		const { restore } = boardStore
+		restore()
+		this.drawHistory()
 	}
 
 	loadMaterial() {
