@@ -1,17 +1,20 @@
 import Event from './event'
-import { Material, getCrayonPattern } from './utils'
+import { getCrayonPattern, Material } from './utils'
 import crayonImgAsset from '../assets/crayon.png'
 import boardStore from '@/store/boardStore'
 import { getUuid } from '@/utils'
+
 export interface Point {
 	x: number
 	y: number
 }
+
 export interface DrawStyle {
 	lineWidth: number
 	brushType: string
 	strokeStyle: string
 }
+
 class DrawingBoard {
 	canvas: HTMLCanvasElement // 画布
 	drawCanvas: HTMLCanvasElement // 画布
@@ -30,6 +33,7 @@ class DrawingBoard {
 		crayon: null,
 	}
 	points: Point[] = []
+
 	constructor(canvas: HTMLCanvasElement) {
 		this.dpr = window.devicePixelRatio || 1
 		this.canvas = canvas
@@ -77,30 +81,37 @@ class DrawingBoard {
 			this.drawCanvas.style[key] = style[key]
 		}
 	}
+
 	// 设置画笔类型
 	setBrushType(type: string) {
 		this.brushType = type
 	}
+
 	// 设置起始点
 	setStartPosition(x: number, y: number) {
 		this.startPosition = { x, y }
 	}
+
 	// 设置鼠标是否按下
 	setIsMouseDown(isMouseDown: boolean) {
 		this.isMouseDown = isMouseDown
 	}
+
 	// 设置是否正在绘制
 	setIsDrawing(isDrawing: boolean) {
 		this.isDrawing = isDrawing
 	}
+
 	// 设置线宽
 	setLineWidth(lineWidth: number) {
 		this.lineWidth = lineWidth
 	}
+
 	// 设置线条颜色
 	setStrokeStyle(strokeStyle: string) {
 		this.strokeStyle = strokeStyle
 	}
+
 	drawContent() {
 		this.setIsDrawing(true)
 		this.clearDrawCanvas()
@@ -113,6 +124,7 @@ class DrawingBoard {
 			},
 		})
 	}
+
 	// 绘制
 	draw(
 		ctx: CanvasRenderingContext2D,
@@ -134,6 +146,7 @@ class DrawingBoard {
 				ctx.strokeStyle = getCrayonPattern(strokeStyle, this.material.crayon)
 				break
 			case 'shadow':
+				ctx.shadowBlur = lineWidth
 				ctx.shadowColor = strokeStyle
 				ctx.strokeStyle = strokeStyle
 				break
@@ -155,19 +168,18 @@ class DrawingBoard {
 		}
 
 		ctx.stroke()
-		if (this.brushType === 'shadow') {
-			ctx.shadowBlur = lineWidth
-		}
+		ctx.restore()
 	}
 
 	// 清空画板
 	clear() {
-		const { pushData, clearData } = boardStore
 		this.ctx?.clearRect(0, 0, this.canvas.width, this.canvas.height)
 	}
+
 	clearDrawCanvas() {
 		this.drawCtx?.clearRect(0, 0, this.canvas.width, this.canvas.height)
 	}
+
 	// 添加历史记录
 	addHistory() {
 		const { pushData } = boardStore
@@ -181,6 +193,7 @@ class DrawingBoard {
 			},
 		})
 	}
+
 	// 绘制历史数据
 	drawHistory() {
 		this.clear()
@@ -196,6 +209,8 @@ class DrawingBoard {
 		revoke()
 		this.drawHistory()
 	}
+
+	// 恢复
 	restore() {
 		const { restore } = boardStore
 		restore()
@@ -205,7 +220,6 @@ class DrawingBoard {
 	loadMaterial() {
 		return new Promise<void>((resolve) => {
 			const crayonImg = new Image()
-			// eslint-disable-next-line @typescript-eslint/no-var-requires
 			crayonImg.src = crayonImgAsset
 			crayonImg.onload = () => {
 				this.material.crayon = crayonImg

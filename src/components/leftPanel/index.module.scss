@@ -2,7 +2,7 @@
 	position: fixed;
 	top: 50px;
 	left: -230px;
-	z-index: 10;
+	z-index: var(--operation-index);
 	transition: left 0.3s ease-in-out;
 	box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 	width: 220px;

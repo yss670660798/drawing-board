@@ -1,31 +1,36 @@
+:root {
+	--operation-index: 10;
+	--draw-index: 15;
+}
+
 * {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
 }
 
 html {
-  font-size: 14px;
+	font-size: 14px;
 }
 
 html,
 body {
-  width: 100vw;
-  height: 100vh;
+	width: 100vw;
+	height: 100vh;
 }
 
 ol,
 ul {
-  list-style: none;
+	list-style: none;
 }
 
 #root {
-  width: 100%;
-  height: 100%;
+	width: 100%;
+	height: 100%;
 }
 
 canvas {
-  display: block;
+	display: block;
 	image-rendering: optimizeQuality;
 	backface-visibility: hidden;
 }

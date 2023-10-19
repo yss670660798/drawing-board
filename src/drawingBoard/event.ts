@@ -42,7 +42,7 @@ class Event {
 		this.board.addPoint({ x: offsetX, y: offsetY })
 		this.board.setStartPosition(offsetX, offsetY)
 		this.board.setIsMouseDown(true)
-		this.board.setDrawCanvasStyle({ zIndex: '10' })
+		this.board.setDrawCanvasStyle({ zIndex: 'var(--draw-index)' })
 	}
 
 	// 鼠标移动
