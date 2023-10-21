@@ -1,6 +1,10 @@
 :root {
 	--operation-index: 10;
 	--draw-index: 15;
+	--cursor-pencil: url("./assets/images/pencil.png"), auto;
+	--cursor-crayon: url("./assets/images/crayon.png"), auto;
+	--cursor-shadow: url("./assets/images/shadow.png"), auto;
+	--cursor-eraser: url("./assets/images/eraser.png") 2 10, auto;
 }
 
 * {
@@ -18,9 +22,11 @@ body {
 	width: 100vw;
 	height: 100vh;
 }
-body{
+
+body {
 	background: #fff;
 }
+
 ol,
 ul {
 	list-style: none;
@@ -32,6 +38,9 @@ ul {
 }
 
 canvas {
+	position: absolute;
+	left: 0;
+	top: 0;
 	display: block;
 	image-rendering: optimizeQuality;
 	backface-visibility: hidden;

@@ -1,17 +1,20 @@
 import DrawingBoard from '@/drawingBoard'
 import s from './index.module.scss'
-import { useRef, useEffect } from 'react'
+import { useRef } from 'react'
 import boardStore from '@/store/boardStore'
 import { observer } from 'mobx-react'
-import { useDebounceEffect } from 'ahooks'
+import { useThrottleEffect } from 'ahooks'
+
 function Index() {
 	const canvasRef = useRef<HTMLCanvasElement>(null)
 	const wrapRef = useRef<HTMLDivElement>(null)
 	const { setBoard, board } = boardStore
 	// 初始化画板
-	useDebounceEffect(() => {
-		if (!canvasRef.current) return
-		const board = new DrawingBoard(canvasRef.current)
+	useThrottleEffect(() => {
+		if (!wrapRef.current) return
+		const board = new DrawingBoard({
+			container: wrapRef.current as HTMLDivElement,
+		})
 		setBoard(board)
 	}, [])
 
@@ -29,10 +32,16 @@ function Index() {
 	// 		resize.unobserve(document.body);
 	// 	};
 	// }, [board]);
+
 	return (
-		<div className={s.board} ref={wrapRef}>
-			<canvas ref={canvasRef}></canvas>
-		</div>
+		<>
+			<div
+				className={s.board}
+				ref={wrapRef}
+				// @ts-ignore*
+				style={{ '--cursor': 'default' }}
+			></div>
+		</>
 	)
 }
 
