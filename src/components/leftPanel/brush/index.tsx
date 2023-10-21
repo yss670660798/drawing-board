@@ -1,5 +1,5 @@
 import boardStore from '@/store/boardStore'
-import { Form, Slider, Radio, Button } from '@arco-design/web-react'
+import { Form, Radio, Slider } from '@arco-design/web-react'
 import { observer } from 'mobx-react'
 
 function Brush() {
@@ -12,31 +12,37 @@ function Brush() {
 	]
 	return (
 		<Form layout='vertical'>
-			<Form.Item label='颜色'>
-				<input
-					style={{ width: '100%' }}
-					type='color'
-					onChange={(e) => {
-						board?.setStrokeStyle(e.target.value)
-					}}
-				/>
-			</Form.Item>
-			<Form.Item label='线宽'>
-				<Slider
-					min={1}
-					max={30}
-					onChange={(val) => board?.setLineWidth(val as number)}
-					defaultValue={5}
-				/>
-			</Form.Item>
-			<Form.Item label='画笔类型'>
-				<Radio.Group
-					options={brushes}
-					defaultValue={'pencil'}
-					onChange={(val) => board?.setBrushType(val)}
-					size='small'
-				></Radio.Group>
-			</Form.Item>
+			{board?.drawType != 'eraser' ? (
+				<Form.Item label='颜色'>
+					<input
+						style={{ width: '100%' }}
+						type='color'
+						onChange={(e) => {
+							board?.setStrokeStyle(e.target.value)
+						}}
+					/>
+				</Form.Item>
+			) : null}
+			{board?.drawType != 'fill' ? (
+				<Form.Item label='线宽'>
+					<Slider
+						min={1}
+						max={30}
+						onChange={(val) => board?.setLineWidth(val as number)}
+						defaultValue={5}
+					/>
+				</Form.Item>
+			) : null}
+			{board?.drawType === 'brush' ? (
+				<Form.Item label='画笔类型'>
+					<Radio.Group
+						options={brushes}
+						defaultValue={'pencil'}
+						onChange={(val) => board?.setBrushType(val)}
+						size='small'
+					></Radio.Group>
+				</Form.Item>
+			) : null}
 		</Form>
 	)
 }

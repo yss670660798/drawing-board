@@ -4,6 +4,7 @@ import clx from 'classnames'
 import boardStore from '@/store/boardStore'
 import Icon from '../icon'
 import Brush from './brush'
+
 function LeftPanel() {
 	const { showLeftPanel, toggleLeftPanel } = boardStore
 	return (
@@ -14,9 +15,7 @@ function LeftPanel() {
 					<Icon iconName='guanbi' />
 				</span>
 			</div>
-			<div className={s.panelContent}>
-				<Brush />
-			</div>
+			<div className={s.panelContent}>{showLeftPanel ? <Brush /> : null}</div>
 		</div>
 	)
 }
