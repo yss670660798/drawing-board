@@ -11,6 +11,7 @@ import {
 import Eraser from '@/drawingBoard/eraser'
 import { getUuid } from '@/utils'
 import crayonImgAsset from '@/assets/images/crayon-bg.png'
+import Fill from '@/drawingBoard/fill'
 
 interface BoardOptions {
 	container: HTMLDivElement | string
@@ -26,6 +27,7 @@ class DrawingBoard {
 	private _brush: Brush
 	private _eraser: Eraser
 	private _stroke: Element
+	private _fill: Fill
 	private _drawType: DrawType = 'brush'
 	private isMouseDown: boolean = false
 	private points: Point[] = []
@@ -66,6 +68,7 @@ class DrawingBoard {
 		this._brush = new Brush()
 		this._eraser = new Eraser()
 		this._stroke = new Element(this.$container, this._lineWidth)
+		this._fill = new Fill(this)
 		this.init()
 		this.loadMaterial()
 	}
@@ -73,6 +76,8 @@ class DrawingBoard {
 	init() {
 		this.setCursor('pencil')
 		this.setCanvasSize()
+		this.ctx.imageSmoothingEnabled = true
+		this.clear()
 		this._registerEvents()
 	}
 
@@ -95,7 +100,7 @@ class DrawingBoard {
 		this.isMouseDown = false
 		this.addHistory({
 			id: getUuid(),
-			type: this.drawType,
+			type: this._drawType,
 			points: this.points,
 			style: {
 				lineWidth: this._lineWidth,
@@ -124,16 +129,21 @@ class DrawingBoard {
 			e.preventDefault()
 			return
 		}
-		// @ts-ignore
-		this.isMouseDown = true
 		const { offsetX, offsetY } = e
 		this.points.push({ x: offsetX, y: offsetY })
+		// 填充模式
+		if (this._drawType === 'fill') {
+			return
+		}
+		// @ts-ignore
+		this.isMouseDown = true
 		if (this._drawType === 'brush') {
 			this._stroke.setStrokeBg(this._strokeStyle)
 		}
 	}
 
 	changeDrawType(type: DrawType): void {
+		const { setDrawType } = boardStore
 		this._drawType = type
 		let opacity: number = 0
 		switch (type) {
@@ -146,12 +156,15 @@ class DrawingBoard {
 				this.setCursor(type)
 				break
 		}
+		setDrawType(type)
 	}
 
 	// 设置画笔类型
 	setBrushType(type: BrushType): void {
+		const { setDrawType } = boardStore
 		this._drawType = 'brush'
 		this._brushType = type
+		setDrawType('brush')
 		this._stroke.setStrokeOpacity(1)
 		this.setCursor(type)
 	}
@@ -187,6 +200,10 @@ class DrawingBoard {
 	// 清空画板
 	clear() {
 		this.ctx?.clearRect(0, 0, this.canvas.width, this.canvas.height)
+		this.ctx.save()
+		this.ctx.fillStyle = '#fff'
+		this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
+		this.ctx.restore()
 	}
 
 	// 添加历史记录
@@ -223,6 +240,9 @@ class DrawingBoard {
 					break
 				case 'eraser':
 					this._eraser.cleanLine(this.ctx, { points, style })
+					break
+				case 'fill':
+					this._fill._fill(points[0], style.strokeStyle)
 			}
 		})
 	}

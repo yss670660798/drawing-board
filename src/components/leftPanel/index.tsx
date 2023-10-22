@@ -5,12 +5,18 @@ import boardStore from '@/store/boardStore'
 import Icon from '../icon'
 import Brush from './brush'
 
+const drawTypeName = {
+	brush: '画笔',
+	fill: '填充',
+	eraser: '橡皮擦',
+}
+
 function LeftPanel() {
-	const { showLeftPanel, toggleLeftPanel } = boardStore
+	const { showLeftPanel, toggleLeftPanel, drawType } = boardStore
 	return (
 		<div className={clx(s.leftPanel, { [s.show]: showLeftPanel })}>
 			<div className={s.title}>
-				<span className={s.name}>画笔设置</span>
+				<span className={s.name}>{drawTypeName[drawType]}设置</span>
 				<span className={s.close} onClick={() => toggleLeftPanel(false)}>
 					<Icon iconName='guanbi' />
 				</span>
