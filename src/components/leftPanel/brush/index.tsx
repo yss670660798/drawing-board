@@ -3,8 +3,7 @@ import { Form, Radio, Slider } from '@arco-design/web-react'
 import { observer } from 'mobx-react'
 
 function Brush() {
-	const { board } = boardStore
-
+	const { board, drawType } = boardStore
 	const brushes = [
 		{ value: 'pencil', label: '铅笔' },
 		{ value: 'crayon', label: '蜡笔' },
@@ -12,7 +11,7 @@ function Brush() {
 	]
 	return (
 		<Form layout='vertical'>
-			{board?.drawType != 'eraser' ? (
+			{drawType !== 'eraser' ? (
 				<Form.Item label='颜色'>
 					<input
 						style={{ width: '100%' }}
@@ -23,7 +22,7 @@ function Brush() {
 					/>
 				</Form.Item>
 			) : null}
-			{board?.drawType != 'fill' ? (
+			{drawType != 'fill' ? (
 				<Form.Item label='线宽'>
 					<Slider
 						min={1}
@@ -33,7 +32,7 @@ function Brush() {
 					/>
 				</Form.Item>
 			) : null}
-			{board?.drawType === 'brush' ? (
+			{drawType === 'brush' ? (
 				<Form.Item label='画笔类型'>
 					<Radio.Group
 						options={brushes}
